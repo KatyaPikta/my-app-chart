@@ -1,0 +1,116 @@
+replicaCount: 1
+
+image:
+  frontend:
+    repository: my-frontend
+    tag: latest
+    pullPolicy: Never
+  backend:
+    repository: my-backend
+    tag: latest
+    pullPolicy: Never
+  db:
+    repository: mysql
+    tag: 8.0
+    pullPolicy: IfNotPresent
+  redis:
+    repository: redis
+    tag: 7-alpine
+    pullPolicy: IfNotPresent
+
+service:
+  frontend:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+  backend:
+    type: ClusterIP
+    port: 5000
+    targetPort: 5000
+  db:
+    type: ClusterIP
+    port: 3306
+    targetPort: 3306
+  redis:
+    type: ClusterIP
+    port: 6379
+    targetPort: 6379
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  hosts:
+    - host: task2.local
+      paths:
+        - path: /api/tasks
+          pathType: Prefix
+          backend:
+            serviceName: backend
+            servicePort: 5000
+        - path: /
+          pathType: Prefix
+          backend:
+            serviceName: frontend
+            servicePort: 80
+        
+  tls: []
+
+env:
+  db:
+    database: "tasks_db"
+    user: "task2_user"
+    password: "task2_pass"
+    root_password: "pass"
+    host: "db"
+    port: "3306"
+  redis:
+    host: "redis"
+    port: "6379"
+  frontend:
+    host: "frontend:80"
+    api_url: "/api"
+
+persistence:
+  db:
+    enabled: true
+    storageClass: "standard"
+    accessMode: ReadWriteOnce
+    size: 8Gi
+  redis:
+    enabled: true
+    storageClass: "standard"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+
+resources:
+  frontend:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+  backend:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  db:
+    requests:
+      memory: "512Mi"
+      cpu: "300m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+  redis:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"

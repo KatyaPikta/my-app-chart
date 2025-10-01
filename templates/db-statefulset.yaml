@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}
+    component: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+        {{- include "my-app.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: db
+        image: "{{ .Values.image.db.repository }}:{{ .Values.image.db.tag }}"
+        imagePullPolicy: {{ .Values.image.db.pullPolicy }}
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_DATABASE
+          value: "{{ .Values.env.db.database }}"
+        - name: MYSQL_USER
+          value: "{{ .Values.env.db.user }}"
+        - name: MYSQL_PASSWORD
+          value: "{{ .Values.env.db.password }}"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "{{ .Values.env.db.root_password }}"
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/mysql
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - -h
+            - localhost
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 20
+          failureThreshold: 10
+        readinessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - -h
+            - localhost
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 20
+        resources:
+          {{- toYaml .Values.resources.db | nindent 12 }}
+      volumes:
+      - name: db-data
+        persistentVolumeClaim:
+          claimName: db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}
+    component: db
+spec:
+  type: {{ .Values.service.db.type }}
+  ports:
+    - port: {{ .Values.service.db.port }}
+      targetPort: {{ .Values.service.db.targetPort }}
+      protocol: TCP
+  selector:
+    app: db
