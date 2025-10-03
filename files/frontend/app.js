@@ -1,7 +1,7 @@
-const API_BASE = "/api"
+const API_URL = "$API_URL"
 
 async function loadTasks() {
-  const res = await fetch(`${API_BASE}/tasks`);
+  const res = await fetch(`${API_URL}/api/tasks`);
   const data = await res.json();
   const div = document.getElementById("tasks");
   div.innerHTML = "";
@@ -20,7 +20,7 @@ async function loadTasks() {
     const toggleBtn = document.createElement("button");
     toggleBtn.textContent = "Toggle";
     toggleBtn.onclick = async () => {
-      await fetch(`${API_BASE}/tasks/${t.id}`, { method: "PATCH" });
+      await fetch(`${API_URL}/api/tasks/${t.id}`, { method: "PATCH" });
       loadTasks();
     };
 
@@ -28,7 +28,7 @@ async function loadTasks() {
     const delBtn = document.createElement("button");
     delBtn.textContent = "Delete";
     delBtn.onclick = async () => {
-      await fetch(`${API_BASE}/tasks/${t.id}`, { method: "DELETE" });
+      await fetch(`${API_URL}/api/tasks/${t.id}`, { method: "DELETE" });
       loadTasks();
     };
 
@@ -46,7 +46,7 @@ document.getElementById("taskForm").addEventListener("submit", async e => {
   const form = document.getElementById("taskForm");
   const formData = new FormData(form);
 
-  await fetch(`${API_BASE}/tasks`, {
+  await fetch(`${API_URL}/api/tasks`, {
     method: "POST",
     body: formData
   });

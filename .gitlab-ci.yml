@@ -1,0 +1,66 @@
+# .gitlab-ci.yml
+stages:
+  - test
+  - lint
+  - build
+  - deploy
+
+before_script:
+  - echo "Start pipeline"
+
+test_job:
+  stage: test
+  tags:
+    - docker,k8s,linux
+  script:
+    - echo "Run tests"
+    - pip install pytest
+    - PYTHONPATH=$(pwd)
+    - pytest -v files/backend/tests/
+    - pip install flake8 isort black
+    - echo "=== Running Flake8 ==="
+    - flake8 files/backend/  
+    - echo "=== Running Isort ==="
+    - isort files/backend/ --check-only --diff
+    - echo "=== Running Black ==="
+    - black files/backend/ --check --diff
+    - echo "All linting checks passed!" 
+    - pwd
+    - ls -la
+
+eslint:
+  stage: lint
+  tags:
+    - test
+  script:
+    - echo "Installing and running ESLint"
+    - npm install
+    - npx eslint files/frontend/ --fix-dry-run --color
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 hour
+
+build_backend:
+  stage: build
+  tags:
+    - linux,docker
+  script:
+    - docker build -t my-backend:latest ./files/backend/
+
+build_frontend:
+  stage: build
+  tags:
+    - linux,docker
+  script:
+    - docker build -t my-frontend:latest ./files/frontend
+
+deploy:
+  stage: deploy
+  tags:
+    - k8s,linux,docker
+  script:
+    - helm upgrade --install my-app-chart .
+  dependencies:
+    - build_backend
+    - build_frontend

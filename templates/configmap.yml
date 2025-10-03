@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: task2-config
+data:
+  FLASK_ENV: {{ .Values.configMap.data.FLASK_ENV | quote }}
+  MYSQL_DB: {{ .Values.configMap.data.MYSQL_DB | quote }}
+  MYSQL_USER: {{ .Values.configMap.data.MYSQL_USER | quote }}
+  MYSQL_HOST: {{ .Values.configMap.data.MYSQL_HOST | quote }}
+  MYSQL_PORT: {{ .Values.configMap.data.MYSQL_PORT | quote }}
+  REDIS_HOST: {{ .Values.configMap.data.REDIS_HOST | quote }}
+  REDIS_PORT: {{ .Values.configMap.data.REDIS_PORT | quote }}
+  FE_HOST: {{ .Values.configMap.data.FE_HOST | quote }}
+  API_URL: {{ .Values.configMap.data.API_URL | quote }}

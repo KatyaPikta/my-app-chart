@@ -21,9 +21,15 @@ spec:
         - containerPort: 80
         env:
         - name: FE_HOST
-          value: "{{ .Values.env.frontend.host }}"
+          valueFrom: 
+            configMapKeyRef:
+              name: task2-config
+              key: FE_HOST
         - name: API_URL
-          value: "{{ .Values.env.frontend.api_url }}"
+          valueFrom: 
+            configMapKeyRef:
+              name: task2-config
+              key: API_URL
         livenessProbe:
           httpGet:
             path: index.html

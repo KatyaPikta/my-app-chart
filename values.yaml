@@ -58,20 +58,23 @@ ingress:
         
   tls: []
 
-env:
-  db:
-    database: "tasks_db"
-    user: "task2_user"
-    password: "task2_pass"
-    root_password: "pass"
-    host: "db"
-    port: "3306"
-  redis:
-    host: "redis"
-    port: "6379"
-  frontend:
-    host: "frontend:80"
-    api_url: "/api"
+configMap:
+  enabled: true
+  data:
+    MYSQL_USER: "root" 
+    MYSQL_HOST: "db"   
+    MYSQL_DB: "tasks_db"
+    REDIS_HOST: "redis" 
+    REDIS_PORT: "6379"  
+    FE_HOST: "frontend:80" 
+    FLASK_ENV: "development"
+    API_URL: ""
+
+secret:
+  enabled: true
+  data:
+    MYSQL_PASSWORD: "cGFzcw=="
+    MYSQL_ROOT_PASSWORD: "cGFzcw=="
 
 persistence:
   db:
