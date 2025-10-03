@@ -16,9 +16,13 @@ def create_app(config_class=Config):
         app,
         resources={
             r"/api/tasks*": {
-                "origins": [f"http://{app.config['FE_HOST']}", f"https://{app.config['FE_HOST']}"],
-                "allow_headers": "*",
-                "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+                "origins": {
+		     [f"http://{app.config['FE_HOST']}", f"https://{app.config['FE_HOST']}"],
+                }
+		"allow_headers": "*",
+                "methods": {
+		     ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+		}
             }
         },
     )
