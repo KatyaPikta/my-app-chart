@@ -67,17 +67,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-        
-      - name: Install dependencies
+    
+      - name: Install and run ESLint
         run: |
           cd files/frontend
           npm install
-    
-      - name: Run ESLint
-        run: |
-          cd files/frontend
-          npx eslint . --fix-dry-run --color
-
+          npm run lint  # используем скрипт из package.json
   build-backend:
     runs-on: [self-hosted, linux, docker]
     needs: [test, python-lint]
