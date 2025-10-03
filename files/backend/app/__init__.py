@@ -18,11 +18,11 @@ def create_app(config_class=Config):
             r"/api/tasks*": {
                 "origins": {
 		     [f"http://{app.config['FE_HOST']}", f"https://{app.config['FE_HOST']}"],
-                }
+                },
 		"allow_headers": "*",
                 "methods": {
 		     ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-		}
+		},
             }
         },
     )
