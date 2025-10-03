@@ -23,7 +23,10 @@ jobs:
           echo "Run tests"
           pip install pytest
           export PYTHONPATH=$(pwd)
-          pytest -v files/backend/tests/
+          echo "Current directory: $(pwd)"
+          echo "Running tests from backend directory"
+          cd files/backend
+          python -m pytest tests/ -v
 
   python-lint:
     runs-on: [self-hosted, linux, docker]
@@ -49,25 +52,28 @@ jobs:
           black files/backend/ --check --diff
           echo "✅ All Python linting checks passed!"
 
-  eslint:
-    runs-on: [self-hosted, linux, docker]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: files/frontend/package-lock.json
-      
-      - name: Install and run ESLint
-        run: |
-          echo "Installing and running ESLint"
-          cd files/frontend
-          npm ci
-          npx eslint . --fix-dry-run --color
+  
+eslint:
+  runs-on: [self-hosted, linux, docker]
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        # Убрали cache параметр
+    
+    - name: Install dependencies
+      run: |
+        cd files/frontend
+        npm install
+    
+    - name: Run ESLint
+      run: |
+        cd files/frontend
+        npx eslint . --fix-dry-run --color
 
   build-backend:
     runs-on: [self-hosted, linux, docker]

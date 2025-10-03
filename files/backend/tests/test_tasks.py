@@ -7,8 +7,7 @@ def test_empty_tasks(client):
 def test_create_task(client):
     # Send as form data (matches frontend FormData)
     rv = client.post(
-        "/api/tasks",
-        data={"title": "Test Task", "description": "Desc", "status": "New"}
+        "/api/tasks", data={"title": "Test Task", "description": "Desc", "status": "New"}
     )
     assert rv.status_code == 200
 
@@ -41,4 +40,3 @@ def test_delete_task(client):
     rv = client.delete(f"/api/tasks/{task_id}")
     assert rv.status_code == 200
     assert "deleted" in rv.get_json()["message"]
-

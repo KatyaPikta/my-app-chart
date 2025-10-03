@@ -1,6 +1,8 @@
 import pytest
+
 from app import create_app
-from app.extensions import db, cache
+from app.extensions import cache, db
+
 
 class TestConfig:
     TESTING = True
