@@ -52,27 +52,26 @@ jobs:
           echo " All Python linting checks passed!"
 
   
-eslint:
-  runs-on: [self-hosted, linux, docker]
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+  eslint:
+    runs-on: [self-hosted, linux, docker]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
     
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        # Убрали cache параметр
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+        
+      - name: Install dependencies
+        run: |
+          cd files/frontend
+          npm install
     
-    - name: Install dependencies
-      run: |
-        cd files/frontend
-        npm install
-    
-    - name: Run ESLint
-      run: |
-        cd files/frontend
-        npx eslint . --fix-dry-run --color
+      - name: Run ESLint
+        run: |
+          cd files/frontend
+          npx eslint . --fix-dry-run --color
 
   build-backend:
     runs-on: [self-hosted, linux, docker]
