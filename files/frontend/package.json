@@ -1,9 +1,7 @@
 {
   "devDependencies": {
     "eslint": "^9.35.0"
-  }
-}
-{
+  },
   "type": "module",
   "scripts": {
     "lint": "eslint . --fix-dry-run --color"
