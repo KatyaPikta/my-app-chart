@@ -1,0 +1,103 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: [self-hosted, linux, docker]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Run tests
+        run: |
+          echo "Run tests"
+          pip install pytest
+          export PYTHONPATH=$(pwd)
+          pytest -v files/backend/tests/
+
+  python-lint:
+    runs-on: [self-hosted, linux, docker]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Python linters
+        run: pip install flake8 isort black
+        
+      - name: Run Python linters
+        run: |
+          echo "=== Running Flake8 ==="
+          flake8 files/backend/  
+          echo "=== Running Isort ==="
+          isort files/backend/ --check-only --diff
+          echo "=== Running Black ==="
+          black files/backend/ --check --diff
+          echo "✅ All Python linting checks passed!"
+
+  eslint:
+    runs-on: [self-hosted, linux, docker]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: files/frontend/package-lock.json
+      
+      - name: Install and run ESLint
+        run: |
+          echo "Installing and running ESLint"
+          cd files/frontend
+          npm ci
+          npx eslint . --fix-dry-run --color
+
+  build-backend:
+    runs-on: [self-hosted, linux, docker]
+    needs: [test, python-lint]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build Backend Docker image
+        run: docker build -t my-backend:latest ./files/backend/
+
+  build-frontend:
+    runs-on: [self-hosted, linux, docker]
+    needs: [eslint]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build Frontend Docker image
+        run: docker build -t my-frontend:latest ./files/frontend/
+
+  deploy:
+    runs-on: [self-hosted, k8s, linux, docker]
+    needs: [build-backend, build-frontend]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy with Helm
+        run: |
+          echo "Deploying with Helm"
+          helm upgrade --install my-app-chart .
