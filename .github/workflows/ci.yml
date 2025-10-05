@@ -58,6 +58,7 @@ jobs:
 
   python-lint:
     runs-on: [self-hosted, linux, docker]
+    needs: setup-cache
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -85,6 +86,7 @@ jobs:
   
   eslint:
     runs-on: [self-hosted, linux, docker]
+    needs: setup-cache
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -103,7 +105,7 @@ jobs:
   build-backend:
     runs-on: [self-hosted, linux, docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [test, python-lint]
+    needs: [test, python-lint, setup-cache]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -136,7 +138,7 @@ jobs:
   build-frontend:
     runs-on: [self-hosted, linux, docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [eslint]
+    needs: [eslint, setup-cache]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -168,7 +170,7 @@ jobs:
 
   deploy:
     runs-on: [self-hosted, k8s, linux, docker]
-    needs: [build-backend, build-frontend]
+    needs: [build-backend, build-frontend, setup-cache]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
