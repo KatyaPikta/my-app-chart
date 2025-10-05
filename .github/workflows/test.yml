@@ -45,13 +45,13 @@ jobs:
       
       - name: Install dependencies
         run: |
-          cd backend
+          cd files/backend
           pip install -r requirements.txt
           pip install pymysql 
       
       - name: Run tests with real services
         run: |
-          cd backend
+          cd files/backend
           USE_REAL_SERVICES=1 python -m pytest
         env:
           USE_REAL_SERVICES: 1gi
