@@ -12,8 +12,25 @@ env:
   FRONTEND_IMAGE: piktakatya/my-frontend
   
 jobs:
+  setup-cache:
+    runs-on: [self-hosted, linux, docker]
+    outputs:
+      cache-hit: ${{ steps.cache-actions.outputs.cache-hit }}
+    steps:
+      - name: Cache GitHub Actions
+        uses: actions/cache@v4
+        id: cache-actions
+        with:
+          path: |
+            ~/.cache/actions
+            /opt/hostedtoolcache
+          key: ${{ runner.os }}-actions-${{ hashFiles('**/requirements.txt', '**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-actions-
+
   test:
     runs-on: [self-hosted, linux, docker]
+    needs: setup-cache
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -76,9 +93,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: files/frontend/package-lock.json
-    
+          
       - name: Install and run ESLint
         run: |
           cd files/frontend
