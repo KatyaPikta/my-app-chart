@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from app import create_app
@@ -12,6 +13,7 @@ class TestConfig:
     CACHE_DEFAULT_TIMEOUT = 1  # short timeout
     FE_HOST = "localhost"  # not really used in tests
 
+
 class RealServicesTestConfig:
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:root@127.0.0.1:3306/test_db"
@@ -23,13 +25,14 @@ class RealServicesTestConfig:
     CACHE_DEFAULT_TIMEOUT = 1
     FE_HOST = "127.0.0.1"
 
+
 @pytest.fixture
 def app():
-    if os.getenv('USE_REAL_SERVICES'):
+    if os.getenv("USE_REAL_SERVICES"):
         app = create_app(RealServicesTestConfig)
     else:
         app = create_app(TestConfig)
-        
+
     # Create tables before running tests
     with app.app_context():
         db.create_all()

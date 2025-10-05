@@ -4,10 +4,13 @@ name: Tests with Real Services
 on:
   push:
     branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test-with-real-services:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     services:
       mysql:
         image: mysql:8.0
@@ -51,4 +54,4 @@ jobs:
           cd backend
           USE_REAL_SERVICES=1 python -m pytest
         env:
-          USE_REAL_SERVICES: 1
+          USE_REAL_SERVICES: 1gi
