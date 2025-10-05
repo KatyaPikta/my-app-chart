@@ -12,8 +12,25 @@ env:
   FRONTEND_IMAGE: piktakatya/my-frontend
   
 jobs:
+  setup-cache:
+    runs-on: [self-hosted, linux, docker]
+    outputs:
+      cache-hit: ${{ steps.cache-actions.outputs.cache-hit }}
+    steps:
+      - name: Cache GitHub Actions
+        uses: actions/cache@v4
+        id: cache-actions
+        with:
+          path: |
+            ~/.cache/actions
+            /opt/hostedtoolcache
+          key: ${{ runner.os }}-actions-${{ hashFiles('**/requirements.txt', '**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-actions-
+
   test:
     runs-on: [self-hosted, linux, docker]
+    needs: setup-cache
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,6 +39,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: files/backend/requirements.txt
 
       - name: Install dependencies
         run: |
@@ -39,6 +58,7 @@ jobs:
 
   python-lint:
     runs-on: [self-hosted, linux, docker]
+    needs: setup-cache
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,6 +67,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: files/backend/requirements.txt
           
       - name: Install Python linters
         run: pip install flake8 isort black
@@ -64,6 +86,7 @@ jobs:
   
   eslint:
     runs-on: [self-hosted, linux, docker]
+    needs: setup-cache
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,7 +95,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-    
+          
       - name: Install and run ESLint
         run: |
           cd files/frontend
@@ -82,7 +105,7 @@ jobs:
   build-backend:
     runs-on: [self-hosted, linux, docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [test, python-lint]
+    needs: [test, python-lint, setup-cache]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -115,7 +138,7 @@ jobs:
   build-frontend:
     runs-on: [self-hosted, linux, docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [eslint]
+    needs: [eslint, setup-cache]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -147,7 +170,7 @@ jobs:
 
   deploy:
     runs-on: [self-hosted, k8s, linux, docker]
-    needs: [build-backend, build-frontend]
+    needs: [build-backend, build-frontend, setup-cache]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
