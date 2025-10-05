@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  REGISTRY: docker.io
+  BACKEND_IMAGE: piktakatya/my-backend
+  FRONTEND_IMAGE: piktakatya/my-frontend
+  
 jobs:
   test:
     runs-on: [self-hosted, linux, docker]
@@ -72,7 +77,7 @@ jobs:
         run: |
           cd files/frontend
           npm install
-          npm run lint  # используем скрипт из package.json
+          npm run lint
 
   build-backend:
     runs-on: [self-hosted, linux, docker]
@@ -81,9 +86,33 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      - name: Build Backend Docker image
-        run: docker build -t my-backend:latest ./files/backend/
+      - name: Build and push Backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./files/backend
+          file: ./files/backend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE }}:latest
+            ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify pushed image
+        run: |
+          echo "Backend image pushed to Docker Hub:"
+          echo "https://hub.docker.com/r/${{ env.BACKEND_IMAGE }}"
+
 
   build-frontend:
     runs-on: [self-hosted, linux, docker]
