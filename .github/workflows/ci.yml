@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: [self-hosted, linux, docker]
+    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,6 +35,7 @@ jobs:
 
   python-lint:
     runs-on: [self-hosted, linux, docker]
+    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -59,6 +61,7 @@ jobs:
   
   eslint:
     runs-on: [self-hosted, linux, docker]
+    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -73,8 +76,10 @@ jobs:
           cd files/frontend
           npm install
           npm run lint  # используем скрипт из package.json
+
   build-backend:
     runs-on: [self-hosted, linux, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [test, python-lint]
     steps:
       - name: Checkout code
@@ -85,6 +90,7 @@ jobs:
 
   build-frontend:
     runs-on: [self-hosted, linux, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [eslint]
     steps:
       - name: Checkout code
@@ -96,7 +102,7 @@ jobs:
   deploy:
     runs-on: [self-hosted, k8s, linux, docker]
     needs: [build-backend, build-frontend]
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
