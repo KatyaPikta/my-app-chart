@@ -6,7 +6,7 @@ metadata:
     {{- include "my-app.labels" . | nindent 4 }}
     component: redis
 spec:
-  replicas: 1
+  replicas: 1 # нет скейла
   selector:
     matchLabels:
       app: redis

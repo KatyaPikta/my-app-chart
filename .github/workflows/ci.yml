@@ -12,8 +12,8 @@ env:
   FRONTEND_IMAGE: piktakatya/my-frontend
   
 jobs:
-  setup-cache:
-    runs-on: [self-hosted, linux, docker]
+  setup-cache: # что кешируем, зачем
+    runs-on: [self-hosted, linux, docker] # у раннера все 3 тега проставлены?
     outputs:
       cache-hit: ${{ steps.cache-actions.outputs.cache-hit }}
     steps:

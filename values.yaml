@@ -1,9 +1,29 @@
 replicaCount: 1
 
+# структура поудобнее для понимания:
+#  frontend:
+#    image:
+#      repository: my-frontend
+#      tag: latest
+#      pullPolicy: Never
+#    service:
+#      type: ClusterIP
+#      port: 80
+#      targetPort: 80
+#    resources:
+#      requests:
+#        memory: "128Mi"
+#        cpu: "100m"
+#      limits:
+#        memory: "256Mi"
+#        cpu: "200m"
+#  backend:
+#    image: ...
+
 image:
   frontend:
-    repository: my-frontend
-    tag: latest
+    repository: my-frontend # лучше использовать полное имя репозитория: piktakatya/my-backend
+    tag: latest # latest, лучше использовать конкретный тег, например, v1.0.0
     pullPolicy: Never
   backend:
     repository: my-backend
@@ -37,7 +57,7 @@ service:
     targetPort: 6379
 
 ingress:
-  enabled: true
+  enabled: true # только этот параметр влияет на ингресс, остальное не используется в темплейте
   className: "nginx"
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -62,16 +82,16 @@ configMap:
   enabled: true
   data:
     MYSQL_USER: "root" 
-    MYSQL_HOST: "db"   
+    MYSQL_HOST: "db"   # хостнеймы сервисов должны быть настроены самим чартом
     MYSQL_DB: "tasks_db"
     REDIS_HOST: "redis" 
     REDIS_PORT: "6379"  
-    FE_HOST: "frontend:80" 
+    FE_HOST: "frontend:80"
     FLASK_ENV: "development"
     API_URL: ""
 
-secret:
-  enabled: true
+secret: # безопаснее хранить готовый секрет и ссылаться на него values.yaml файле
+  enabled: true # если будет false, деплойменты сломаются, т.к. не найдут секрет
   data:
     MYSQL_PASSWORD: "cGFzcw=="
     MYSQL_ROOT_PASSWORD: "cGFzcw=="

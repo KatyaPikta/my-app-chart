@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: task2-config
 data:
-  FLASK_ENV: {{ .Values.configMap.data.FLASK_ENV | quote }}
+  FLASK_ENV: {{ .Values.configMap.data.FLASK_ENV | quote }} # лучше задавать значения по умолчанию, где применимо
   MYSQL_DB: {{ .Values.configMap.data.MYSQL_DB | quote }}
   MYSQL_USER: {{ .Values.configMap.data.MYSQL_USER | quote }}
   MYSQL_HOST: {{ .Values.configMap.data.MYSQL_HOST | quote }}
