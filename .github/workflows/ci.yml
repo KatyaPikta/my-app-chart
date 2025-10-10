@@ -81,7 +81,7 @@ jobs:
         run: |
           cd apps/frontend
           npm install
-          npm run lint
+          npm run lint eslint.config.js
 
   build-backend:
     runs-on: [self-hosted, linux, docker]
