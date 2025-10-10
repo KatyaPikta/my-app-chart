@@ -80,8 +80,11 @@ jobs:
       - name: Install and run ESLint
         run: |
           cd apps/frontend
+          npm install eslint@9.0.0 --save-dev
           npm install
-          npm run lint --config eslint.config.js .
+          npm run lint
+          #  npx eslint . --config eslint.config.js --debug
+        
 
   build-backend:
     runs-on: [self-hosted, linux, docker]

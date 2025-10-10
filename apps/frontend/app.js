@@ -1,7 +1,7 @@
 const API_URL = "$API_URL"
 
 async function loadTasks() {
-  const res = await fetch(`${API_URL}/api/tasks`);
+  const res = await fetch(`${API_URL}/api/tasks`)
   const data = await res.json();
   const div = document.getElementById("tasks");
   div.innerHTML = "";
