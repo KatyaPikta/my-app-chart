@@ -1,39 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db
+  name: {{ .Release.Name }}-mysql
   labels:
     {{- include "my-app.labels" . | nindent 4 }}
-    component: db
+    component: database
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: db
+      app: {{ .Release.Name }}-mysql
   template:
     metadata:
       labels:
-        app: db
+        app: {{ .Release.Name }}-mysql
         {{- include "my-app.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-      - name: db
-        image: "{{ .Values.image.db.repository }}:{{ .Values.image.db.tag }}"
-        imagePullPolicy: {{ .Values.image.db.pullPolicy }}
+      - name: {{ .Release.Name }}-mysql
+        image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
+        imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
         ports:
         - containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: task2-secret
+              name: {{ .Release.Name }}-secret
               key: MYSQL_ROOT_PASSWORD
         - name: MYSQL_DATABASE
           value: "tasks_db"
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: task2-secret
+              name: {{ .Release.Name }}-secret
               key: MYSQL_PASSWORD
         volumeMounts:
         - name: db-data
@@ -60,24 +60,24 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 20
         resources:
-          {{- toYaml .Values.resources.db | nindent 12 }}
+          {{- toYaml .Values.mysql.resources | nindent 12 }}
       volumes:
       - name: db-data
         persistentVolumeClaim:
-          claimName: db-pvc
+          claimName: {{ .Release.Name }}-mysql-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: db
+  name: {{ .Release.Name }}-mysql
   labels:
     {{- include "my-app.labels" . | nindent 4 }}
-    component: db
+    component: database
 spec:
-  type: {{ .Values.service.db.type }}
+  type: {{ .Values.mysql.service.type }}
   ports:
-    - port: {{ .Values.service.db.port }}
-      targetPort: {{ .Values.service.db.targetPort }}
+    - port: {{ .Values.mysql.service.port }}
+      targetPort: {{ .Values.mysql.service.targetPort }}
       protocol: TCP
   selector:
-    app: db
+    app: {{ .Release.Name }}-mysql

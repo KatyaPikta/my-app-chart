@@ -1,34 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: {{ .Release.Name }}-frontend
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: frontend
+      app: {{ .Release.Name }}-frontend
   template:
     metadata:
       labels:
-        app: frontend
+        app: {{ .Release.Name }}-frontend
         {{- include "my-app.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-      - name: frontend
-        image: "{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
-        imagePullPolicy: {{ .Values.image.frontend.pullPolicy }}
+      - name: {{ .Release.Name }}-frontend
+        image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+        imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
         ports:
         - containerPort: 80
         env:
         - name: FE_HOST
           valueFrom: 
             configMapKeyRef:
-              name: task2-config
+              name: {{ .Release.Name }}-configmap
               key: FE_HOST
         - name: API_URL
           valueFrom: 
             configMapKeyRef:
-              name: task2-config
+              name: {{ .Release.Name }}-configmap
               key: API_URL
         livenessProbe:
           httpGet:
@@ -46,20 +46,20 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 10
         resources:
-          {{- toYaml .Values.resources.frontend | nindent 12 }}
+          {{- toYaml .Values.frontend.resources | nindent 12 }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+  name: {{ .Release.Name }}-frontend
   labels:
       {{- include "my-app.labels" . | nindent 4 }}
   component: frontend
 spec:
-  type: {{ .Values.service.frontend.type }}
+  type: {{ .Values.frontend.service.type }}
   ports:
-    - port: {{ .Values.service.frontend.port }}
-      targetPort: {{ .Values.service.frontend.targetPort }}
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.service.targetPort }}
       protocol: TCP
   selector:
-    app: frontend
+    app: {{ .Release.Name }}-frontend

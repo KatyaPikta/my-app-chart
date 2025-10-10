@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: task2-config
+  name: {{ .Release.Name }}-configmap
 data:
   FLASK_ENV: {{ .Values.configMap.data.FLASK_ENV | quote }}
   MYSQL_DB: {{ .Values.configMap.data.MYSQL_DB | quote }}
