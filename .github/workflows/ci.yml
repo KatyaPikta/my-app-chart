@@ -58,7 +58,7 @@ jobs:
       - name: Run Python linters
         run: |
           echo "=== Running Flake8 ==="
-          flake8 apps/backend/  
+          flake8 --config=apps/backend/.flake8 apps/backend/  
           echo "=== Running Isort ==="
           isort apps/backend/ --check-only --diff
           echo "=== Running Black ==="
@@ -81,7 +81,7 @@ jobs:
         run: |
           cd apps/frontend
           npm install
-          npm run lint eslint.config.js
+          npm run lint --config eslint.config.js .
 
   build-backend:
     runs-on: [self-hosted, linux, docker]
