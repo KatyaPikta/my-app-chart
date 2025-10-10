@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis
+  name: {{ .Release.Name }}-redis
   labels:
     {{- include "my-app.labels" . | nindent 4 }}
-    component: redis
+    component: cache
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: redis
+      app: {{ .Release.Name }}-redis
   template:
     metadata:
       labels:
-        app: redis
+        app: {{ .Release.Name }}-redis
         {{- include "my-app.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-      - name: redis
-        image: "{{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}"
-        imagePullPolicy: {{ .Values.image.redis.pullPolicy }}
+      - name: {{ .Release.Name }}-redis
+        image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+        imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
         ports:
         - containerPort: 6379
         volumeMounts:
@@ -44,24 +44,24 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 10
         resources:
-          {{- toYaml .Values.resources.redis | nindent 12 }}
+          {{- toYaml .Values.redis.resources | nindent 12 }}
       volumes:
       - name: redis-data
         persistentVolumeClaim:
-          claimName: redis-pvc
+          claimName: {{ .Release.Name }}-redis-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: {{ .Release.Name }}-redis
   labels:
     {{- include "my-app.labels" . | nindent 4 }}
-    component: redis
+    component: cache
 spec:
-  type: {{ .Values.service.redis.type }}
+  type: {{ .Values.redis.service.type }}
   ports:
-    - port: {{ .Values.service.redis.port }}
-      targetPort: {{ .Values.service.redis.targetPort }}
+    - port: {{ .Values.redis.service.port }}
+      targetPort: {{ .Values.redis.service.targetPort }}
       protocol: TCP
   selector:
-    app: redis
+    app: {{ .Release.Name }}-redis
