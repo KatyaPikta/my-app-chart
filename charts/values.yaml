@@ -2,8 +2,8 @@ replicaCount: 1
 
 frontend:
   image:
-    repository: my-frontend
-    tag: latest
+    repository: piktakatya/my-frontend
+    tag: "{{ .Values.imageTag }}"
     pullPolicy: Never
   service:
     type: ClusterIP
@@ -19,8 +19,8 @@ frontend:
 
 backend:
   image:
-    repository: my-backend
-    tag: latest
+    repository: piktakatya/my-backend
+    tag: "{{ .Values.imageTag }}"
     pullPolicy: Never
   service:
     type: ClusterIP
