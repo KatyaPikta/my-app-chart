@@ -37,6 +37,8 @@ spec:
         env:
         - name: MYSQL_HOST
           value: {{ .Release.Name }}-mysql
+        - name: REDIS_HOST
+          value: {{ .Release.Name }}-redis
         livenessProbe:
           tcpSocket:
             port: 5000
