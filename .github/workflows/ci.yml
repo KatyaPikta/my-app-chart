@@ -3,92 +3,16 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-
+  
 env:
   REGISTRY: docker.io
   BACKEND_IMAGE: piktakatya/my-backend
   FRONTEND_IMAGE: piktakatya/my-frontend
   
 jobs:
-  test:
-    runs-on: [self-hosted, linux, docker]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: apps/backend/requirements.txt
-
-      - name: Install dependencies
-        run: |
-          cd apps/backend
-          pip install -r requirements.txt pytest
-
-      - name: Run tests
-        run: |
-          echo "Run tests"
-          pip install pytest
-          echo "Current directory: $(pwd)"        
-          echo "Running tests from backend directory"
-          cd apps/backend
-          python -m pytest tests/ -v
-
-  python-lint:
-    runs-on: [self-hosted, linux, docker]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: apps/backend/requirements.txt
-          
-      - name: Install Python linters
-        run: pip install flake8 isort black
-        
-      - name: Run Python linters
-        run: |
-          echo "=== Running Flake8 ==="
-          flake8 --config=apps/backend/.flake8 apps/backend/  
-          echo "=== Running Isort ==="
-          isort apps/backend/ --check-only --diff
-          echo "=== Running Black ==="
-          black apps/backend/ --check --diff
-          echo " All Python linting checks passed!"
-
-  
-  eslint:
-    runs-on: [self-hosted, linux, docker]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-    
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          
-      - name: Install and run ESLint
-        run: |
-          cd apps/frontend
-          npm install eslint@9.0.0 --save-dev
-          npm install
-          npm run lint
-
-
   build-backend:
     runs-on: [self-hosted, linux, docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [test, python-lint]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -121,7 +45,6 @@ jobs:
   build-frontend:
     runs-on: [self-hosted, linux, docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [eslint]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -151,7 +74,7 @@ jobs:
           echo "https://hub.docker.com/r/${{ env.FRONTEND_IMAGE }}"
 
 
-  deploy:
+  release-chart:
     runs-on: [self-hosted, k8s, linux, docker]
     needs: [build-backend, build-frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -159,7 +82,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Deploy with Helm
+      - name: Bump chart version
         run: |
-          echo "Deploying with Helm"
-          helm upgrade --install task2 ./charts/. --set imageTag=${{ github.sha }}
+          cd charts/
+          current_version=$(grep '^version:' Chart.yaml | cut -d' ' -f2)
+          new_version=$(echo $current_version | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          sed -i "s/version: $current_version/version: $new_version/" Chart.yaml
+
+      - name: Package Helm chart
+        run: |
+          helm package charts/ --destination ./helm-releases/
+      
+      - name: Upload chart as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-charts
+          path: ./helm-releases/
+          retention-days: 30
+  deploy:
+    runs-on: [self-hosted, k8s, linux, docker]
+    needs: release-chart
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+    
+      - name: Download chart artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: helm-charts
+      
+      - name: Deploy from local chart
+        run: |
+          CHART_FILE=$(ls *.tgz)
+          echo "Deploying chart: $CHART_FILE"
+          helm upgrade --install myapp ./$CHART_FILE \
+          --set image.tag=${{ github.sha }}
+      

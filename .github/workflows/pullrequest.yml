@@ -1,0 +1,97 @@
+on:
+  pull_request:
+    branches: [main, develop]
+
+
+jobs:
+  python-lint:
+    runs-on: [self-hosted, linux, docker]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: apps/backend/requirements.txt
+          
+      - name: Install Python linters
+        run: pip install flake8 isort black
+        
+      - name: Run Python linters
+        run: |
+          echo "=== Running Flake8 ==="
+          flake8 --config=apps/backend/.flake8 apps/backend/  
+          echo "=== Running Isort ==="
+          isort apps/backend/ --check-only --diff
+          echo "=== Running Black ==="
+          black apps/backend/ --check --diff
+          echo " All Python linting checks passed!"
+
+  
+  eslint:
+    runs-on: [self-hosted, linux, docker]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+    
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install and run ESLint
+        run: |
+          cd apps/frontend
+          npm install eslint@9.0.0 --save-dev
+          npm install
+          npm run lint
+  
+  test-with-real-services:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 6379:6379
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          cd apps/backend
+          pip install -r requirements.txt
+          pip install pymysql
+          pip install pytest
+      
+      - name: Run tests with real services
+        run: |
+          cd apps/backend
+          python -m pytest tests/ -v
