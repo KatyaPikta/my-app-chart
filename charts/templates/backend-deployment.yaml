@@ -25,7 +25,7 @@ spec:
         command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-mysql 3306; do echo "Waiting for MySQL..."; sleep 2; done; echo "MySQL ready"']
       containers:
       - name: {{ .Release.Name }}-backend
-        image: "{{ .Values.backend.image.repository }}:{{ .Values.imageTag }}"
+        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
         imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
         ports:
         - containerPort: 5000

@@ -116,5 +116,6 @@ jobs:
           CHART_FILE=$(ls *.tgz)
           echo "Deploying chart: $CHART_FILE"
           helm upgrade --install task2 ./$CHART_FILE \
-          --set image.tag=${{ github.sha }}
+          --set frontend.image.tag=${{ github.sha }} \
+          --set backend.image.tag=${{ github.sha }}
       
