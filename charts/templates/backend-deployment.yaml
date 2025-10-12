@@ -34,6 +34,9 @@ spec:
             name: {{ .Release.Name }}-configmap
         - secretRef:
             name: {{ .Release.Name }}-secret
+        env:
+        - name: MYSQL_HOST
+          value: {{ .Release.Name }}-mysql
         livenessProbe:
           tcpSocket:
             port: 5000

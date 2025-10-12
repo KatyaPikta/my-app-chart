@@ -21,10 +21,7 @@ spec:
         - containerPort: 80
         env:
         - name: FE_HOST
-          valueFrom: 
-            configMapKeyRef:
-              name: {{ .Release.Name }}-configmap
-              key: FE_HOST
+          value: {{ .Release.Name }}-frontend
         - name: API_URL
           valueFrom: 
             configMapKeyRef:
