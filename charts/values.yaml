@@ -4,7 +4,7 @@ frontend:
   image:
     repository: piktakatya/my-frontend
     tag: "{{ .Values.imageTag }}"
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 80
@@ -21,7 +21,7 @@ backend:
   image:
     repository: piktakatya/my-backend
     tag: "{{ .Values.imageTag }}"
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 5000
