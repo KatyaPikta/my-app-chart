@@ -91,13 +91,13 @@ jobs:
 
       - name: Package Helm chart
         run: |
-          helm package charts/ --destination ./helm-releases/
+          helm package charts/ --destination ../helm-releases/
       
       - name: Upload chart as artifact
         uses: actions/upload-artifact@v4
         with:
           name: helm-charts
-          path: ./helm-releases/
+          path: ../helm-releases/
           retention-days: 30
   deploy:
     runs-on: [self-hosted, k8s, linux, docker]
