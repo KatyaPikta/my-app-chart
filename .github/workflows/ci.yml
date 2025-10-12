@@ -83,8 +83,7 @@ jobs:
           npm install eslint@9.0.0 --save-dev
           npm install
           npm run lint
-          #  npx eslint . --config eslint.config.js --debug
-        
+
 
   build-backend:
     runs-on: [self-hosted, linux, docker]
@@ -163,4 +162,4 @@ jobs:
       - name: Deploy with Helm
         run: |
           echo "Deploying with Helm"
-          helm upgrade --install task2 ./charts/.
+          helm upgrade --install task2 ./charts/. --set imageTag=${{ github.sha }}
