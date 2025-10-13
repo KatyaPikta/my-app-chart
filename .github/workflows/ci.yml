@@ -100,7 +100,7 @@ jobs:
           echo "=== DIRECTORY TREE ==="
           tree -L 3 || find . -type d -name "*chart*" | head -10
           
-      - name: Bump chart version and app version
+      - name: Bump chart version
         id: vars
         run: |
           cd charts/
@@ -134,6 +134,8 @@ jobs:
           name: helm-charts
           path: helm-releases/
           retention-days: 30
+  
+          
   deploy:
     runs-on: [self-hosted, k8s, linux, docker]
     needs: release-chart
