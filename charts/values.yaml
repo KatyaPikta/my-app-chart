@@ -1,4 +1,4 @@
-replicaCount: 1
+replicaCount: 1 # не поправлена общая реплика для БЕ и ФЕ
 
 frontend:
   image:
@@ -51,7 +51,8 @@ mysql:
       memory: "1Gi"
       cpu: "500m"
   env:
-     MYSQL_PASSWORD: "cGFzcw=="
+     # почему напрямую настриваются эти вары, если ниже по файлу секрет создается с ними?
+     MYSQL_PASSWORD: "cGFzcw==" # секреты наружу, лучше использовать secretRef https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data
      MYSQL_ROOT_PASSWORD: "cGFzcw=="
   persistence:
     enabled: true
@@ -85,7 +86,7 @@ redis:
 
 ingress:
   enabled: true
-  tls: []
+  tls: [] # на что это влияет?
 
 configMap:
   enabled: true
@@ -94,9 +95,10 @@ configMap:
     MYSQL_DB: "tasks_db"
     REDIS_PORT: "6379"  
     FLASK_ENV: "development"
-    API_URL: ""
+    API_URL: "" # почему это пусто?
+    # FE_HOST: ?
 
-secret:
+secret: # как и говорил, лучше создать руками секрет и ссылаться на него, вместо ведения его в values.yml файле
   enabled: true
   data:
     MYSQL_PASSWORD: "cGFzcw=="

@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-configmap
 data:
-  FLASK_ENV: {{ .Values.configMap.data.FLASK_ENV | default "development" | quote }}
+  FLASK_ENV: {{ .Values.configMap.data.FLASK_ENV | default "development" | quote }} # в каком случает тут будет quote?
   MYSQL_DB: {{ .Values.configMap.data.MYSQL_DB | default "tasks_db" | quote }}
   MYSQL_USER: {{ .Values.configMap.data.MYSQL_USER | quote }}
   MYSQL_HOST: {{ .Values.configMap.data.MYSQL_HOST | quote }}
