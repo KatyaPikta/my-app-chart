@@ -6,7 +6,7 @@ metadata:
     {{- include "my-app.labels" . | nindent 4 }}
     component: cache
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: {{ .Release.Name }}-redis

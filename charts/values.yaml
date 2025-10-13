@@ -1,4 +1,5 @@
-replicaCount: 1
+replicaCountBackend: 2
+replicaCountFrontend: 1
 
 frontend:
   image:
@@ -85,7 +86,6 @@ redis:
 
 ingress:
   enabled: true
-  tls: []
 
 configMap:
   enabled: true
@@ -95,9 +95,3 @@ configMap:
     REDIS_PORT: "6379"  
     FLASK_ENV: "development"
     API_URL: ""
-
-secret:
-  enabled: true
-  data:
-    MYSQL_PASSWORD: "cGFzcw=="
-    MYSQL_ROOT_PASSWORD: "cGFzcw=="

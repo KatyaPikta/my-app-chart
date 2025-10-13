@@ -6,7 +6,7 @@ metadata:
     {{- include "my-app.labels" . | nindent 4 }}
     component: backend
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCountBackend }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-backend
@@ -31,14 +31,22 @@ spec:
         - containerPort: 5000
         envFrom:
         - configMapRef:
-            name: {{ .Release.Name }}-configmap
-        - secretRef:
-            name: {{ .Release.Name }}-secret
+            name: {{ .Release.Name }}-configmap        
         env:
         - name: MYSQL_HOST
           value: {{ .Release.Name }}-mysql
         - name: REDIS_HOST
           value: {{ .Release.Name }}-redis
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: mysql_root_password
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: mysql_password
         livenessProbe:
           tcpSocket:
             port: 5000

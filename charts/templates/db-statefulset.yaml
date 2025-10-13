@@ -6,7 +6,7 @@ metadata:
     {{- include "my-app.labels" . | nindent 4 }}
     component: database
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: {{ .Release.Name }}-mysql
@@ -24,11 +24,17 @@ spec:
         - containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: "{{ .Values.mysql.env.MYSQL_ROOT_PASSWORD }}"
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: mysql_root_password
         - name: MYSQL_DATABASE
           value: "tasks_db"
         - name: MYSQL_PASSWORD
-          value: "{{ .Values.mysql.env.MYSQL_PASSWORD }}"
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: mysql_password
         volumeMounts:
         - name: db-data
           mountPath: /var/lib/mysql
