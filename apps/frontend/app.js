@@ -24,7 +24,7 @@ async function loadTasks() {
       loadTasks();
     };
 
-    // Delete button
+    // Delete button TEST TEST
     const delBtn = document.createElement("button");
     delBtn.textContent = "Delete";
     delBtn.onclick = async () => {
