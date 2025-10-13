@@ -82,6 +82,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Debug structure
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in current directory:"
+          ls -la
+          
       - name: Bump chart version
         run: |
           cd charts/
