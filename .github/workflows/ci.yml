@@ -84,10 +84,16 @@ jobs:
       
       - name: Debug structure
         run: |
+          echo "=== GITHUB WORKSPACE ==="
+          echo "$GITHUB_WORKSPACE"
           echo "Current directory:"
           pwd
           echo "Files in current directory:"
           ls -la
+          echo "=== FINDING Chart.yaml ==="
+          find . -name "Chart.yaml" -type f 2>/dev/null || echo "Chart.yaml not found"
+          echo "=== DIRECTORY TREE ==="
+          tree -L 3 || find . -type d -name "*chart*" | head -10
           
       - name: Bump chart version
         run: |
