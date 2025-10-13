@@ -79,7 +79,7 @@ jobs:
   release-chart:
     runs-on: [self-hosted, k8s, linux, docker]
     needs: [build-backend, build-frontend]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # версия чарта меняется независимо от того, что меняется в коммите
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -114,7 +114,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add charts/Chart.yaml
-          git commit -m "bump chart version to $new_version " 
+          git commit -m "bump chart version to $new_version "  # $new_version не отображается
           git push origin main
 
       - name: Package Helm chart
@@ -146,4 +146,3 @@ jobs:
           helm upgrade --install task2 ./$CHART_FILE \
           --set frontend.image.tag=${{ github.sha }} \
           --set backend.image.tag=${{ github.sha }}
-      
