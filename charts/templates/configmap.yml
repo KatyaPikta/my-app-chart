@@ -3,12 +3,12 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-configmap
 data:
-  FLASK_ENV: {{ .Values.configMap.data.FLASK_ENV | quote }}
-  MYSQL_DB: {{ .Values.configMap.data.MYSQL_DB | quote }}
+  FLASK_ENV: {{ .Values.configMap.data.FLASK_ENV | default "development" | quote }}
+  MYSQL_DB: {{ .Values.configMap.data.MYSQL_DB | default "tasks_db" | quote }}
   MYSQL_USER: {{ .Values.configMap.data.MYSQL_USER | quote }}
   MYSQL_HOST: {{ .Values.configMap.data.MYSQL_HOST | quote }}
-  MYSQL_PORT: {{ .Values.configMap.data.MYSQL_PORT | quote }}
+  MYSQL_PORT: {{ .Values.configMap.data.MYSQL_PORT |  default "3306" | quote }}
   REDIS_HOST: {{ .Values.configMap.data.REDIS_HOST | quote }}
-  REDIS_PORT: {{ .Values.configMap.data.REDIS_PORT | quote }}
+  REDIS_PORT: {{ .Values.configMap.data.REDIS_PORT |  default "6379"| quote }}
   FE_HOST: {{ .Values.configMap.data.FE_HOST | quote }}
   API_URL: {{ .Values.configMap.data.API_URL | quote }}
