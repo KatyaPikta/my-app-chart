@@ -8,4 +8,4 @@ data:
   MYSQL_USER: {{ .Values.configMap.data.MYSQL_USER | default "root" }}
   MYSQL_PORT: {{ .Values.configMap.data.MYSQL_PORT |  default "3306" | quote }}
   REDIS_PORT: {{ .Values.configMap.data.REDIS_PORT |  default "6379" | quote }}
-  API_URL: {{ .Values.configMap.data.API_URL }}
+  API_URL: {{ .Values.configMap.data.API_URL | quote }}
