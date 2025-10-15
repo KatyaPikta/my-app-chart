@@ -6,7 +6,7 @@ metadata:
     {{- include "my-app.labels" . | nindent 4 }}
     component: database
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-mysql

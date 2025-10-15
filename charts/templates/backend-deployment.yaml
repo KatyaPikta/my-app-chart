@@ -35,6 +35,8 @@ spec:
         env:
         - name: MYSQL_HOST
           value: {{ .Release.Name }}-mysql
+        - name: MYSQL_USER
+          value: "root"
         - name: REDIS_HOST
           value: {{ .Release.Name }}-redis
         - name: MYSQL_ROOT_PASSWORD

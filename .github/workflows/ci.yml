@@ -104,7 +104,7 @@ jobs:
         id: vars
         run: |
           cd charts/
-          if git diff --name-only HEAD~1 HEAD |grep -q "^apps/"; then
+          if git diff --name-only HEAD~1 HEAD |grep -q "^charts/templates/"; then
             current_version=$(grep '^version:' Chart.yaml | cut -d' ' -f2)
             new_version=$(echo $current_version | awk -F. '{$2 = $2 + 1; $3 = 0} 1' | sed 's/ /./g')
             sed -i "s/version: $current_version/version: $new_version/" Chart.yaml
@@ -115,13 +115,33 @@ jobs:
             sed -i "s/version: $current_version/version: $new_version/" Chart.yaml
             echo "new-version=$new_version" >> $GITHUB_OUTPUT
           fi
-            
+      
+      - name: Bump application version
+        id: var_app
+        run: |
+          cd charts/
+          if git diff --name-only HEAD~1 HEAD |grep -E "^(app.js|backend/app/)$"; then
+            current_version=$(grep '^appVersion:' Chart.yaml | cut -d' ' -f2)
+            new_version="$(echo $current_version | awk -F. '{$2 = $2 + 1; $3 = 0} 1' | sed 's/ /./g')\""
+            sed -i "s/appVersion: $current_version/appVersion: $new_version/" Chart.yaml
+            echo "app-version=$new_version" >> $GITHUB_OUTPUT
+          elif git diff --name-only HEAD~1 HEAD | grep -q "^apps/"; then
+            current_version=$(grep '^appVersion:' Chart.yaml | cut -d' ' -f2)
+            new_version="$(echo $current_version | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')\""
+            sed -i "s/appVersion: $current_version/appVersion: $new_version/" Chart.yaml
+            echo "app-new-version=$new_version" >> $GITHUB_OUTPUT
+          fi
+
       - name: Commit with [skip ci]
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add charts/Chart.yaml
-          git commit -m "bump chart version to ${{ steps.vars.outputs.new-version }} " 
+          if [ -z ${{ steps.var_app.outputs.app-new-version }} ]; then  
+            git commit -m "bump chart version to ${{ steps.vars.outputs.new-version }}"
+          else
+            git commit -m "bump chart version to ${{ steps.vars.outputs.new-version }} and app version to ${{ steps.var_app.outputs.app-new-version }}" 
+          fi
           git push origin main
 
       - name: Package Helm chart
