@@ -63,8 +63,8 @@ jobs:
           
       - name: Verify pushed image
         run: |
-          echo "✅ Backend image pushed to Docker Hub"
-          echo "🔗 https://hub.docker.com/r/${{ env.BACKEND_IMAGE }}"
+          echo "Backend image pushed to Docker Hub"
+          echo "https://hub.docker.com/r/${{ env.BACKEND_IMAGE }}"
 
   build-frontend:
     runs-on: ubuntu-latest
