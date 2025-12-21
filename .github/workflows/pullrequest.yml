@@ -106,7 +106,6 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Run Semgrep SAST
-      working-directory: ./apps
       uses: returntocorp/semgrep-action@v1
       with:
         config: auto
