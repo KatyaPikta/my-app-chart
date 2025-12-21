@@ -127,11 +127,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Python dependency check
-      uses: pypa/gh-action-pip-audit@v1.0.0
-      with:
-        inputs: "apps/backend/requirements.txt"
-        
-    - name: Node.js dependency check
-      working-directory: ./frontend
-      run: npm audit --audit-level=high
+    - name: Check Python dependencies
+      run: |
+        pip install pip-audit
+      
+        if [ -f "apps/backend/requirements.txt" ]; then
+          echo "Checking Python dependencies..."
+          pip-audit -r apps/backend/requirements.txt
+        fi
+      
+    - name: Check Node.js dependencies
+      working-directory: ./apps/frontend
+      run: |
+        if [ -f "package.json" ]; then
+          npm ci
+          npm audit --audit-level=high
+        fi
