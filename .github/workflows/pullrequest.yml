@@ -95,3 +95,37 @@ jobs:
         run: |
           cd apps/backend
           python -m pytest tests/ -v
+
+  sast:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Semgrep SAST
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: auto
+        output: semgrep-results.sarif
+        
+    - name: Upload SARIF results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: semgrep-results.sarif
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Python dependency check
+      uses: py-actions/pip-audit@v2
+      with:
+        inputs: "apps/backend/requirements.txt"
+        
+    - name: Node.js dependency check
+      working-directory: ./frontend
+      run: npm audit --audit-level=high
