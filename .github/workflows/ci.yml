@@ -11,7 +11,7 @@ env:
   BACKEND_IMAGE: piktakatya/my-backend
   FRONTEND_IMAGE: piktakatya/my-frontend
   HELM_CHART_PATH: ./charts
-  GITOPS_REPO: https://github.com/KatyaPikta/infra-argo.git
+  GITOPS_REPO: 'KatyaPikta/infra-argo'
 #  GITOPS_APP_PATH: "charts/myapp-task2/"
   ARGO_APP_NAME: "myapp-task2"
 
