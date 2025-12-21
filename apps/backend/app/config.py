@@ -11,7 +11,7 @@ class Config:
         f"@{os.getenv('MYSQL_HOST')}/{os.getenv('MYSQL_DB')}"
     )
 
-    # Redis cache 
+    # Redis cache
     CACHE_TYPE = "RedisCache"
     CACHE_REDIS_HOST = os.getenv("REDIS_HOST", "redis")
     CACHE_REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))

@@ -5,7 +5,8 @@ on:
 
 jobs:
   python-lint:
-    runs-on: [self-hosted, linux, docker]
+#    runs-on: [self-hosted, linux, docker]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,7 +33,8 @@ jobs:
 
   
   eslint:
-    runs-on: [self-hosted, linux, docker]
+#    runs-on: [self-hosted, linux, docker]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -95,3 +97,49 @@ jobs:
         run: |
           cd apps/backend
           python -m pytest tests/ -v
+
+  sast:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Semgrep SAST
+      run: |
+        pip install semgrep
+      
+        semgrep scan --config auto --sarif --output apps/semgrep-results.sarif . || true
+      
+        if [ ! -f ".semgrep-results.sarif" ]; then
+          echo '{"runs":[]}' > .semgrep-results.sarif
+        fi
+        
+    - name: Upload SARIF results
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: apps/semgrep-results.sarif
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check Python dependencies
+      run: |
+        pip install pip-audit
+      
+        if [ -f "apps/backend/requirements.txt" ]; then
+          echo "Checking Python dependencies..."
+          pip-audit -r apps/backend/requirements.txt
+        fi
+      
+    - name: Check Node.js dependencies
+      working-directory: ./apps/frontend
+      run: |
+        if [ -f "package.json" ]; then
+          npm ci
+          npm audit --audit-level=high
+        fi
