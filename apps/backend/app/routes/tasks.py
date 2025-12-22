@@ -28,8 +28,8 @@ def upload_tasks():
         db.session.add(t)
         db.session.commit()
         cache.delete("all_tasks")
-        return {"message": "Success", "id": t.id}, 200
-    return {"message": "Title not found"}, 400
+        return "Success", 200
+    return "Title not found", 400
 
 
 @bp.route("/<int:task_id>", methods=["PATCH"])
