@@ -1,0 +1,122 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/apps/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "15:00"
+      timezone: "Europe/Minsk"
+    open-pull-requests-limit: 3
+    versioning-strategy: "increase-if-necessary"
+    commit-message:
+      prefix: "chore(frontend):"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "frontend"
+      - "npm"
+      - "javascript"
+    ignore:
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vue"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "angular"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        versions: ["*-alpha*", "*-beta*", "*-rc*", "*-pre*"]
+    groups:
+      frontend-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "webpack*"
+          - "babel*"
+
+  - package-ecosystem: "pip"
+    directory: "/apps/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "15:00"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(backend):"
+    labels:
+      - "dependencies"
+      - "backend"
+      - "python"
+      - "pip"
+    ignore:
+      - dependency-name: "django"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "flask"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "fastapi"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "sqlalchemy"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        versions: ["*-alpha*", "*-beta*", "*-rc*", "*-pre*"]
+    allow:
+      - dependency-type: "direct"
+
+  - package-ecosystem: "docker"
+    directories:
+      - "/apps/frontend"
+      - "/apps/backend"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "15:00"
+    commit-message:
+      prefix: "chore(docker):"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "container"
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "alpine"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "thursday"
+    commit-message:
+      prefix: "chore(ci):"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci-cd"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore(k8s):"
+    labels:
+      - "dependencies"
+      - "kubernetes"
+    ignore:
+      - dependency-name: "mysql"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "redis"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "nginx"
+        update-types: ["version-update:semver-major"]
