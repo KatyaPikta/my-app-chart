@@ -14,7 +14,7 @@ env:
   GITOPS_REPO: 'KatyaPikta/infra-argo'
 #  GITOPS_APP_PATH: "charts/myapp-task2/"
   ARGO_APP_NAME: "myapp-task2"
-
+# test
 jobs:
   build-backend:
     runs-on: ubuntu-latest
