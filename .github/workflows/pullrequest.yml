@@ -1,7 +1,10 @@
 on:
   pull_request:
     branches: [main, develop]
-
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - 'charts/Chart.yaml'
 
 jobs:
   python-lint:
