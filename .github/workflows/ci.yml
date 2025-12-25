@@ -190,7 +190,7 @@ jobs:
         if: steps.detect_changes.outputs.backend_changed == 'true'
         run: |
           echo "Updating backend tag to ${{ github.sha }} in Argo repo"
-          # cd charts/myapp-task2
+          ls -la
           yq -i -y '.backend.image.tag = "${{ github.sha }}"'  values/myapp-task2/values.yaml
 
       - name: Commit and push changes to GitOps repo
