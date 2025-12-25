@@ -147,9 +147,9 @@ jobs:
           echo "New chart version: $NEW_VERSION"
         
           sed -i "s/^version: $CURRENT_VERSION/version: $NEW_VERSION/" Chart.yaml
-
-          yq eval '.frontend.image.tag = "${{ github.sha }}"' -i ../../values/myapp-task2/values.yaml
-           yq eval '.backend.image.tag = "${{ github.sha }}"' -i ../../values/myapp-task2/values.yaml
+          # yq -i -y '.frontend.tag = "new"' file.yaml
+          yq -i -y '.frontend.image.tag = "${{ github.sha }}"'  ../../values/myapp-task2/values.yaml
+          yq -i -y  '.backend.image.tag = "${{ github.sha }}"'  ../../values/myapp-task2/values.yaml
           # sed -i "s|tag:.*|tag: \"${{ github.sha }}\"|" ../../values/myapp-task2/values.yaml
           sed -i "s/^appVersion: .*/appVersion: \"${{ github.sha }}\"/" Chart.yaml
         
