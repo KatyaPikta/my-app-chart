@@ -142,14 +142,15 @@ jobs:
           FRONTEND_CHANGED=false
           BACKEND_CHANGED=false
           
-          echo "$CHANGED_FILES" | while IFS= read -r file; do
-            if echo "$file" | grep -q "^frontend/"; then
-              FRONTEND_CHANGED=true
-            fi
-            if echo "$file" | grep -q "^backend/"; then
-              BACKEND_CHANGED=true
-            fi
-          done
+          if echo "$CHANGED_FILES" | grep -q "^apps/frontend/"; then
+            FRONTEND_CHANGED=true
+            echo "Frontend changes detected"
+          fi
+    
+          if echo "$CHANGED_FILES" | grep -q "^apps/backend/"; then
+            BACKEND_CHANGED=true
+            echo "Backend changes detected"
+          fi
           
           echo "Frontend changed: $FRONTEND_CHANGED"
           echo "Backend changed: $BACKEND_CHANGED"
