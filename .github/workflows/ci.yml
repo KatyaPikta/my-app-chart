@@ -122,6 +122,11 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
   
     steps:
+      - name: Install yq via apt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y yq
+          
       - name: Checkout (clone) GitOps repository
         uses: actions/checkout@v4
         with:
@@ -142,8 +147,10 @@ jobs:
           echo "New chart version: $NEW_VERSION"
         
           sed -i "s/^version: $CURRENT_VERSION/version: $NEW_VERSION/" Chart.yaml
-        
-          sed -i "s|tag:.*|tag: \"${{ github.sha }}\"|" ../../values/myapp-task2/values.yaml
+
+          yq eval '.frontend.image.tag = "${{ github.sha }}"' -i ../../values/myapp-task2/values.yaml
+           yq eval '.backend.image.tag = "${{ github.sha }}"' -i ../../values/myapp-task2/values.yaml
+          # sed -i "s|tag:.*|tag: \"${{ github.sha }}\"|" ../../values/myapp-task2/values.yaml
           sed -i "s/^appVersion: .*/appVersion: \"${{ github.sha }}\"/" Chart.yaml
         
           echo " Chart updated to version $NEW_VERSION with image tag ${{ github.sha }}"
