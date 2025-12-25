@@ -184,7 +184,7 @@ jobs:
         run: |
           echo "Updating frontend tag to ${{ github.sha }} in Argo repo"
           cd infra-argo
-          yq -i -y '.frontend.image.tag = "${{ github.sha }}"'  ../../values/myapp-task2/values.yaml
+          yq -i -y '.frontend.image.tag = "${{ github.sha }}"'  values/myapp-task2/values.yaml
 
       - name: Update Backend Tag in Argo
         if: steps.detect_changes.outputs.backend_changed == 'true'
