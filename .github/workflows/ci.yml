@@ -126,7 +126,35 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y yq
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          path: apps
+
+      - name: Detect changed services
+        id: detect_changes
+        run: |
+          cd apps
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only origin/main HEAD)
           
+          FRONTEND_CHANGED=false
+          BACKEND_CHANGED=false
+          
+          if echo "$CHANGED_FILES" | grep -q "^frontend/"; then
+            FRONTEND_CHANGED=true
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q "^backend/"; then
+            BACKEND_CHANGED=true
+          fi
+          
+          echo "Frontend changed: $FRONTEND_CHANGED"
+          echo "Backend changed: $BACKEND_CHANGED"
+          echo "frontend_changed=$FRONTEND_CHANGED" >> $GITHUB_OUTPUT
+          echo "backend_changed=$BACKEND_CHANGED" >> $GITHUB_OUTPUT
+
       - name: Checkout (clone) GitOps repository
         uses: actions/checkout@v4
         with:
@@ -134,7 +162,7 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           path: infra-argo
     
-      - name: Update Helm chart with new version and image tags
+      - name: Update Helm chart with new version
         working-directory: infra-argo
         run: |
           cd charts/myapp-task2
@@ -147,14 +175,22 @@ jobs:
           echo "New chart version: $NEW_VERSION"
         
           sed -i "s/^version: $CURRENT_VERSION/version: $NEW_VERSION/" Chart.yaml
-          # yq -i -y '.frontend.tag = "new"' file.yaml
-          yq -i -y '.frontend.image.tag = "${{ github.sha }}"'  ../../values/myapp-task2/values.yaml
-          yq -i -y  '.backend.image.tag = "${{ github.sha }}"'  ../../values/myapp-task2/values.yaml
-          # sed -i "s|tag:.*|tag: \"${{ github.sha }}\"|" ../../values/myapp-task2/values.yaml
           sed -i "s/^appVersion: .*/appVersion: \"${{ github.sha }}\"/" Chart.yaml
-        
-          echo " Chart updated to version $NEW_VERSION with image tag ${{ github.sha }}"
-    
+
+      - name: Update Frontend Tag in Argo
+        if: steps.detect_changes.outputs.frontend_changed == 'true'
+        run: |
+          echo "Updating frontend tag to ${{ github.sha }} in Argo repo"
+          cd charts/myapp-task2
+          yq -i -y '.frontend.image.tag = "${{ github.sha }}"'  ../../values/myapp-task2/values.yaml
+
+      - name: Update Backend Tag in Argo
+        if: steps.detect_changes.outputs.backend_changed == 'true'
+        run: |
+          echo "Updating backend tag to ${{ github.sha }} in Argo repo"
+          cd charts/myapp-task2
+          yq -i -y '.backend.image.tag = "${{ github.sha }}"'  ../../values/myapp-task2/values.yaml
+
       - name: Commit and push changes to GitOps repo
         working-directory: infra-argo
         run: |

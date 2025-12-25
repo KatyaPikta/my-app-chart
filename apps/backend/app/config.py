@@ -1,6 +1,6 @@
 import os
 
-
+# test separate deploy
 class Config:
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
