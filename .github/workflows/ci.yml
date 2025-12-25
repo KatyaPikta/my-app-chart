@@ -142,13 +142,14 @@ jobs:
           FRONTEND_CHANGED=false
           BACKEND_CHANGED=false
           
-          if echo "$CHANGED_FILES" | grep -q "^frontend/"; then
-            FRONTEND_CHANGED=true
-          fi
-          
-          if echo "$CHANGED_FILES" | grep -q "^backend/"; then
-            BACKEND_CHANGED=true
-          fi
+          echo "$CHANGED_FILES" | while IFS= read -r file; do
+            if [[ "$file" == frontend/* ]]; then
+              FRONTEND_CHANGED=true
+            fi
+            if [[ "$file" == backend/* ]]; then
+              BACKEND_CHANGED=true
+            fi
+          done
           
           echo "Frontend changed: $FRONTEND_CHANGED"
           echo "Backend changed: $BACKEND_CHANGED"
