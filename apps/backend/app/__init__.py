@@ -9,7 +9,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Initialize extensions
+    # Initialize extensions test
     db.init_app(app)
     cache.init_app(app)
     cors.init_app(
