@@ -13,7 +13,7 @@ env:
   HELM_CHART_PATH: ./charts
   GITOPS_REPO: 'KatyaPikta/infra-argo'
 #  GITOPS_APP_PATH: "charts/myapp-task2/"
-  ARGO_APP_NAME: "myapp-task2"
+  ARGO_APP_NAME: "myapp-task2-rollout"
 # test
 jobs:
   build-backend:
@@ -167,7 +167,7 @@ jobs:
       - name: Update Helm chart with new version
         working-directory: infra-argo
         run: |
-          cd charts/myapp-task2
+          cd charts/myapp-task2-rollout
         
           CURRENT_VERSION=$(grep '^version:' Chart.yaml | awk '{print $2}')
           echo "Current chart version: $CURRENT_VERSION"
@@ -184,14 +184,14 @@ jobs:
         run: |
           echo "Updating frontend tag to ${{ github.sha }} in Argo repo"
           cd infra-argo
-          yq -i -y '.frontend.image.tag = "${{ github.sha }}"'  values/myapp-task2/values.yaml
+          yq -i -y '.frontend.image.tag = "${{ github.sha }}"'  values/myapp-task2-rollout/values.yaml
 
       - name: Update Backend Tag in Argo
         if: steps.detect_changes.outputs.backend_changed == 'true'
         run: |
           echo "Updating backend tag to ${{ github.sha }} in Argo repo"
           cd infra-argo
-          yq -i -y '.backend.image.tag = "${{ github.sha }}"'  values/myapp-task2/values.yaml
+          yq -i -y '.backend.image.tag = "${{ github.sha }}"'  values/myapp-task2-rollout/values.yaml
 
       - name: Commit and push changes to GitOps repo
         working-directory: infra-argo
