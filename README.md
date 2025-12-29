@@ -85,42 +85,7 @@ kubectl create secret generic app-secrets   --from-literal=mysql_password='xxx' 
 
 ```
 
-## Изменение версий helm release 
+## CI/CD Flow
+![Diagram](ci-cd-flow.drawio.png)
 
-## Minor версия 
-
-Автоматически увеличивается при изменениях в charts templates
-
-Триггер: изменения файлов в директории charts/templates/
-
-Пример: 1.2.3 → 1.3.0
-
-## Patch версия 
-
-Автоматически увеличивается при всех остальных изменениях
-
-Пример: 1.2.3 → 1.2.4
-
-## Major версия 
-
-Требует ручного изменения в файле charts/Chart.yaml
-
-Пример: 1.2.3 → 2.0.0
-
-## Изменение версии App
-
-## Minor версия
-
-Автоматически увеличивается при изменениях:
-- apps/frontend/app.js
-- apps/backends/app/
-
-## Patch версия 
-
-Автоматически увеличивается при любых других изменениях в директории apps/
-
-## Major версия 
-
-Требует ручного изменения в файле charts/Chart.yaml
-
-Применяется: при обратно несовместимых изменениях API
+![Diagram](deployment_strategy.drawio.png)
